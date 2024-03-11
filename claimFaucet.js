@@ -19,28 +19,37 @@ const claimFaucet = async (address) => {
           claimFaucet(address);
         },
         null,
-        true
+        true,
+        ''
       );
       job.start();
     }
   } catch (error) {
-    const errorMessage = error.response
-      ? error.response.data.message
-      : error.message;
+    let errorMessage = 'An unknown error occurred';
+    if (
+      error.response &&
+      error.response.data &&
+      typeof error.response.data.message === 'string'
+    ) {
+      errorMessage = error.response.data.message;
+    } else if (typeof error.message === 'string') {
+      errorMessage = error.message;
+    }
     console.log(colors.red('Error:'), errorMessage);
 
     if (errorMessage === 'Already received asset today') {
       console.log(colors.yellow('Will try again in 1 hour.'));
-      const job = new CronJob(
-        '0 0 * * * *',
+      const retryJob = new CronJob(
+        '0 * * * *',
         () => {
           console.log(colors.blue('Retrying now...'));
           claimFaucet(address);
         },
         null,
-        true
+        true,
+        ''
       );
-      job.start();
+      retryJob.start();
     } else if (errorMessage.includes('is not integrated to the address')) {
       console.log(colors.cyan('Please link your Twitter account.'));
     } else {
