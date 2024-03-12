@@ -2,7 +2,6 @@ require('dotenv').config();
 const { default: axios } = require('axios');
 const chatid = process.env.TELEGRAM_BOT_USER_ID || '';
 const token = process.env.TELEGRAM_BOT_TOKEN || '';
-console.log(token, 'bang');
 const boturl = `https://api.telegram.org/bot${token}/sendMessage`;
 
 const SendTelegram = async (text) => {
