@@ -1,6 +1,7 @@
 const axios = require('axios');
 const colors = require('colors');
 const { CronJob } = require('cron');
+const { SendTelegram } = require('./sendTelegram');
 
 const claimFaucet = async (address) => {
   try {
@@ -12,6 +13,11 @@ const claimFaucet = async (address) => {
       console.log(
         colors.green('Claim successful. Will try again in 24 hours.')
       );
+      if (process.env.TELEGRAM_BOT_TOKEN) {
+        SendTelegram(
+          `Claim successful with address ${address}. Will try again in 24 hours.`
+        );
+      }
       const job = new CronJob(
         '0 0 * * *',
         () => {
@@ -36,6 +42,9 @@ const claimFaucet = async (address) => {
       errorMessage = error.message;
     }
     console.log(colors.red('Error:'), errorMessage);
+    if (process.env.TELEGRAM_BOT_TOKEN) {
+      SendTelegram(`Claim failed with address ${address}: ${errorMessage}`);
+    }
 
     if (errorMessage === 'Already received asset today') {
       console.log(colors.yellow('Will try again in 1 hour.'));
